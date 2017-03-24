@@ -29,7 +29,7 @@ function dateController($scope, $http) {
             $scope.displayChart = true;
         }
 
-        alert($scope.myDate.yyyymmdd());
+        //alert($scope.myDate.yyyymmdd());
         //draw(test);
         $http.get("http://weatherapi.hopto.org/forecast/" + $scope.myDate.yyyymmdd())
          .then(function (response) {
@@ -39,22 +39,26 @@ function dateController($scope, $http) {
              $scope.displayChart = true;
              //response.daily.data[0].time, response.daily.data[0].temperatureMin,response.daily.data[0].temperatureMax
              //"https://api.darksky.net/forecast/575b58915a86e7ddc1d8501d83a1b2c4/39.1031,-84.5120,"+$scope.myDate.toISOString()+"?exclude=currently,flags,minutely,hourly,alerts"
+         }, function (response) {
+             alert("error in getting data from own api");
          });
         var array = [];
 
         $scope.forecast = function (i) {
             $http.get("http://weatherapi.hopto.org/darksky/"
                          + $scope.myDate.addDays(i).getUnixTime())
-             .success(function (response) {
+             .then(function (response) {
                  obj = {};
                  obj.DATE = $scope.myDate.addDays(i).yyyymmdd().toString();
-                 obj.TMAX = response.daily.data[0].temperatureMax
-                 obj.TMIN = response.daily.data[0].temperatureMin
+                 obj.TMAX = response.data.daily.data[0].temperatureMax
+                 obj.TMIN = response.data.daily.data[0].temperatureMin
                  array.push(obj)
                  if (array.length == 6) {
                      array.sort(function (a, b) { return (a.DATE > b.DATE) ? 1 : ((b.DATE > a.DATE) ? -1 : 0); });
                      draw(array, ".svg2")
                  };
+             }, function (response) {
+                 alert("error in getting data from darksky api");
              });
         }
 
